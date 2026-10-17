@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProposalPulse | AI Upwork Proposal Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center py-10 px-4">
+    <div class="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">ProposalPulse AI</h1>
+            <p class="text-slate-400 text-sm mt-2">Generate zero-hallucination, high-conversion Upwork proposals instantly.</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Your Freelancer Context (Skills, Resume, Experience)</label>
+                <textarea id="userContext" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="e.g. 3 years experience in React, TypeScript, Node.js..."></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Upwork Job Description</label>
+                <textarea id="jobDescription" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Paste client job description here..."></textarea>
+            </div>
+
+            <button onclick="generateProposal()" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-600/20">
+                Generate Proposal
+            </button>
+        </div>
+
+        <div id="loading" class="hidden text-center my-6 text-blue-400 animate-pulse">
+            Analyzing job post & crafting targeted proposal...
+        </div>
+
+        <div id="resultBox" class="hidden mt-8 space-y-4 border-t border-slate-800 pt-6">
+            <h2 class="text-lg font-semibold text-blue-400">Generated Proposal Structure</h2>
+            
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 text-sm">
+                <div><span class="font-bold text-slate-400">Client Pain Point:</span> <p id="resPain" class="text-slate-200 mt-1"></p></div>
+                <div><span class="font-bold text-slate-400">Opening Hook:</span> <p id="resHook" class="text-slate-200 mt-1"></p></div>
+                <div><span class="font-bold text-slate-400">Proposed Execution:</span> <p id="resExec" class="text-slate-200 mt-1"></p></div>
+                <div><span class="font-bold text-slate-400">Call to Action:</span> <p id="resCta" class="text-slate-200 mt-1"></p></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateProposal() {
+            const userContext = document.getElementById('userContext').value;
+            const jobDescription = document.getElementById('jobDescription').value;
+            const btn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const resultBox = document.getElementById('resultBox');
+
+            if (!userContext || !jobDescription) {
+                alert('Please fill in both fields!');
+                return;
+            }
+
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userContext, jobDescription })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('resPain').innerText = data.data.client_pain_point;
+                    document.getElementById('resHook').innerText = data.data.opening_hook;
+                    document.getElementById('resExec').innerText = data.data.proposed_execution;
+                    document.getElementById('resCta').innerText = data.data.closing_cta;
+                    resultBox.classList.remove('hidden');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Failed to connect to backend server.');
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
