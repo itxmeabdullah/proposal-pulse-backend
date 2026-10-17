@@ -1,5 +1,12 @@
 {
+  "name": "proposal-pulse-backend",
+  "version": "1.0.0",
+  "description": "Secure Vercel serverless backend proxy for ProposalPulse",
+  "main": "api/generate.js",
   "dependencies": {
-    "@google/genai": "^0.1.1"
+    "@google/genai": "^2.30.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
